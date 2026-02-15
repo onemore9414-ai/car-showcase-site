@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '../contexts/NavigationContext';
 import { SEO } from '../components/SEO';
-import { ArrowRight, Loader2, AlertCircle, User, Mail, Lock, Check, KeyRound } from 'lucide-react';
+import { ArrowRight, Loader2, AlertCircle, User, Mail, Lock, Check, KeyRound, RefreshCw } from 'lucide-react';
 import { useSite } from '../contexts/SiteContext';
 
 export const Signup: React.FC = () => {
-  const { signup, verifyEmail } = useAuth();
+  const { signup, verifyEmail, resendVerificationCode } = useAuth();
   const { navigateTo } = useNavigation();
   const { config } = useSite();
   const [name, setName] = useState('');
@@ -21,6 +21,18 @@ export const Signup: React.FC = () => {
   // Verification State
   const [verificationStep, setVerificationStep] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
+  const [resendTimer, setResendTimer] = useState(0);
+
+  // Timer logic for resend cooldown
+  useEffect(() => {
+    let interval: any;
+    if (resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [resendTimer]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,6 +98,17 @@ export const Signup: React.FC = () => {
       setError(err.message || 'Failed to create account');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (resendTimer > 0) return;
+    setError(null);
+    try {
+        await resendVerificationCode(email);
+        setResendTimer(30); // 30 seconds cooldown
+    } catch (err: any) {
+        setError(err.message || 'Failed to resend code');
     }
   };
 
@@ -267,6 +290,19 @@ export const Signup: React.FC = () => {
                        autoFocus
                      />
                   </div>
+                </div>
+                
+                {/* Resend Code Button */}
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={handleResend}
+                    disabled={resendTimer > 0}
+                    className="flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <RefreshCw className={`h-3 w-3 ${resendTimer > 0 ? 'animate-spin' : ''}`} />
+                    {resendTimer > 0 ? `Resend available in ${resendTimer}s` : 'Resend Code'}
+                  </button>
                 </div>
               </div>
             )}
