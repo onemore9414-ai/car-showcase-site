@@ -33,6 +33,11 @@ export const authService = {
     return response;
   },
 
+  // RESEND VERIFICATION
+  resendVerificationCode: async (email: string): Promise<void> => {
+    await api.post('/auth/resend-verification', { email });
+  },
+
   // FORGOT PASSWORD
   forgotPassword: async (email: string): Promise<void> => {
     await api.post('/auth/forgot-password', { email });
