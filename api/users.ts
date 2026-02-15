@@ -1,6 +1,6 @@
-
 import { Database } from '../database/storage';
 import { User } from '../types';
+import { emailProvider } from './emailProvider';
 
 export const usersController = {
   // GET /api/users
@@ -28,7 +28,7 @@ export const usersController = {
   },
 
   // POST /api/auth/signup
-  signup: (data: any) => {
+  signup: async (data: any) => {
     const { name, email, password } = data;
     const users = Database.read<User[]>('users');
     
@@ -37,7 +37,9 @@ export const usersController = {
     }
 
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log(`[Mock Email Service] 📧 To: ${email} | Verification Code: ${verificationCode}`);
+    
+    // Send Real Email
+    await emailProvider.sendVerificationEmail(email, verificationCode);
 
     const newUser: User = {
       id: `user-${Date.now()}`,
@@ -86,8 +88,35 @@ export const usersController = {
     return { status: 200, body: { user, token } };
   },
 
+  // POST /api/auth/resend-verification
+  resendVerification: async (data: any) => {
+    const { email } = data;
+    const users = Database.read<User[]>('users');
+    const userIndex = users.findIndex(u => u.email.toLowerCase() === email.toLowerCase());
+
+    if (userIndex === -1) {
+      return { status: 404, body: { message: 'User not found' } };
+    }
+
+    const user = users[userIndex];
+    if (user.isVerified) {
+        return { status: 400, body: { message: 'User already verified' } };
+    }
+
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Send Real Email
+    await emailProvider.sendVerificationEmail(email, verificationCode);
+
+    (user as any).verificationCode = verificationCode;
+    users[userIndex] = user;
+    Database.write('users', users);
+
+    return { status: 200, body: { message: 'Verification code resent' } };
+  },
+
   // POST /api/auth/forgot-password
-  forgotPassword: (data: any) => {
+  forgotPassword: async (data: any) => {
     const { email } = data;
     const users = Database.read<User[]>('users');
     const userIndex = users.findIndex(u => u.email.toLowerCase() === email.toLowerCase());
@@ -99,7 +128,9 @@ export const usersController = {
     }
 
     const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log(`[Mock Email Service] 🔐 Password Reset Code for ${email}: ${resetCode}`);
+    
+    // Send Real Email
+    await emailProvider.sendPasswordResetEmail(email, resetCode);
 
     const user = users[userIndex];
     (user as any).resetCode = resetCode;
