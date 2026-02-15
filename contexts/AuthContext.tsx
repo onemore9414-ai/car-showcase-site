@@ -10,6 +10,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<AuthResponse>;
   verifyEmail: (email: string, code: string) => Promise<void>;
+  resendVerificationCode: (email: string) => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (email: string, code: string, newPassword: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -89,6 +90,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const resendVerificationCode = async (email: string) => {
+    // Note: We don't set global loading here to avoid blocking UI during cooldown
+    setError(null);
+    try {
+      await authService.resendVerificationCode(email);
+    } catch (err: any) {
+      setError(err.message || 'Failed to resend code');
+      throw err;
+    }
+  };
+
   const forgotPassword = async (email: string) => {
     setIsLoading(true);
     setError(null);
@@ -150,6 +162,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       login,
       signup,
       verifyEmail,
+      resendVerificationCode,
       forgotPassword,
       resetPassword,
       logout,
