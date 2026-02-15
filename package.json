@@ -1,0 +1,10 @@
+{
+  "name": "car-showcase",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "echo build complete",
+    "start": "echo start"
+  },
+  "dependencies": {}
+}

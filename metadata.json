@@ -1,0 +1,5 @@
+{
+  "name": "Modern Layout Scaffold",
+  "description": "A clean, responsive, and professional web application layout structure featuring a sticky header, navigation, and sticky footer using Tailwind CSS.",
+  "requestFramePermissions": []
+}
