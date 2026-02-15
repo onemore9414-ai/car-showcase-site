@@ -7,6 +7,17 @@
   "build": "vite build",
   "preview": "vite preview"
 },
-  "dependencies": {}
+  "dependencies": {
+  "react": "...",
+  "react-dom": "...",
+  "react-router-dom": "...",
+  "lucide-react": "..."
+},
+"devDependencies": {
+  "vite": "...",
+  "typescript": "..."
 }
+
+}
+
 
