@@ -48,6 +48,10 @@ export async function handleRequest(url: string, method: string, body: any): Pro
     return usersController.verify(body);
   }
 
+  if (path === '/auth/resend-verification' && method === 'POST') {
+    return usersController.resendVerification(body);
+  }
+
   if (path === '/auth/forgot-password' && method === 'POST') {
     return usersController.forgotPassword(body);
   }
