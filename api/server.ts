@@ -1,6 +1,8 @@
+
 import { carsController } from './cars';
 import { usersController } from './users';
 import { adminController } from './admin';
+import { connectDB } from '../database/connection';
 
 interface Response {
   status: number;
@@ -8,12 +10,25 @@ interface Response {
 }
 
 export async function handleRequest(url: string, method: string, body: any): Promise<Response> {
+  // Ensure Database is connected before processing any request
+  try {
+    await connectDB();
+  } catch (error) {
+    console.error('CRITICAL: Database connection failed', error);
+    return { status: 500, body: { message: 'Database connection failed' } };
+  }
+
   // Normalize path: remove /api prefix and trailing slash
   let path = url.replace('/api', '');
   if (path.length > 1 && path.endsWith('/')) {
     path = path.slice(0, -1);
   }
   
+  // --- HEALTH CHECK ---
+  if (path === '/health') {
+    return { status: 200, body: { status: 'database connected', timestamp: new Date().toISOString() } };
+  }
+
   // --- CARS ---
   // Exact match for /cars
   if (path === '/cars') {
