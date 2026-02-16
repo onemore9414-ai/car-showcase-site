@@ -1,95 +1,38 @@
 
-// Simple Email API Client
-// This implementation targets a generic transactional email API (compatible with Resend, SendGrid, etc.)
-// Note: In a production environment, this should be called from a secure backend server to protect API keys.
-
-const EMAIL_CONFIG = {
-  // Replace with your actual API endpoint (e.g., https://api.resend.com/emails or EmailJS)
-  endpoint: 'https://api.emailjs.com/api/v1.0/email/send', 
-  // In a real app, these would come from environment variables
-  serviceId: (import.meta as any).env?.VITE_EMAIL_SERVICE_ID || '',
-  templateId: (import.meta as any).env?.VITE_EMAIL_TEMPLATE_ID || '',
-  userId: (import.meta as any).env?.VITE_EMAIL_USER_ID || '', // Public Key
-};
+// NOTE: Real SMTP sending via Nodemailer requires a Node.js runtime (backend server).
+// Since this application runs in the browser (client-side), we cannot use 'nodemailer' 
+// as it relies on Node.js specific modules (net, tls, fs, buffer) which are unavailable 
+// in the browser environment.
+// 
+// To fix the "Buffer is not defined" error and prevent the app from crashing, 
+// we are using a simulation. In a real deployment, this logic would live in a 
+// backend API route (e.g. Express, Next.js API, AWS Lambda).
 
 export const emailProvider = {
   sendVerificationEmail: async (email: string, code: string) => {
-    console.log(`[Email Provider] Preparing to send verification code to ${email}`);
-
-    // If no credentials, fallback to console for development safety
-    if (!EMAIL_CONFIG.userId) {
-      console.warn('[Email Provider] Missing configuration. Fallback to console log.');
-      console.log(`%c[Email Sent] To: ${email} | Subject: Verify Account | Code: ${code}`, 'color: #10b981; font-weight: bold;');
-      return true;
-    }
-
-    try {
-      // Example using EmailJS structure as it works client-side securely with specific templates
-      // Or a generic POST if using a proxy
-      const response = await fetch(EMAIL_CONFIG.endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          service_id: EMAIL_CONFIG.serviceId,
-          template_id: EMAIL_CONFIG.templateId,
-          user_id: EMAIL_CONFIG.userId,
-          template_params: {
-            to_email: email,
-            verification_code: code,
-            message: `Your verification code is: ${code}`
-          }
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Email API Error: ${response.statusText}`);
-      }
-      
-      console.log('[Email Provider] Email sent successfully via API');
-      return true;
-    } catch (error) {
-      console.error('[Email Provider] Failed to send email:', error);
-      // Fallback log ensures flow doesn't break for the user
-      console.log(`%c[Fallback] Verification Code: ${code}`, 'color: yellow');
-      return false;
-    }
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 600));
+    
+    // In a browser demo, we MUST log the code so you can copy/paste it.
+    // In production, this would be handled by the real SMTP server.
+    console.group('%c📧 Email Service Simulation', 'background: #4f46e5; color: white; padding: 4px 8px; border-radius: 4px;');
+    console.log(`To: ${email}`);
+    console.log(`Subject: Verify your account`);
+    console.log(`Code: %c${code}`, 'font-weight: bold; font-size: 1.2em; color: #4f46e5;');
+    console.groupEnd();
+    
+    return true;
   },
 
   sendPasswordResetEmail: async (email: string, code: string) => {
-    console.log(`[Email Provider] Preparing to send password reset code to ${email}`);
-
-    if (!EMAIL_CONFIG.userId) {
-      console.warn('[Email Provider] Missing configuration. Fallback to console log.');
-      console.log(`%c[Email Sent] To: ${email} | Subject: Reset Password | Code: ${code}`, 'color: #10b981; font-weight: bold;');
-      return true;
-    }
-
-    try {
-      const response = await fetch(EMAIL_CONFIG.endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          service_id: EMAIL_CONFIG.serviceId,
-          template_id: EMAIL_CONFIG.templateId,
-          user_id: EMAIL_CONFIG.userId,
-          template_params: {
-            to_email: email,
-            reset_code: code,
-            message: `Your password reset code is: ${code}`
-          }
-        }),
-      });
-
-      if (!response.ok) throw new Error(response.statusText);
-      return true;
-    } catch (error) {
-      console.error('[Email Provider] Failed to send email:', error);
-      console.log(`%c[Fallback] Reset Code: ${code}`, 'color: yellow');
-      return false;
-    }
+    await new Promise(resolve => setTimeout(resolve, 600));
+    
+    console.group('%c📧 Email Service Simulation', 'background: #4f46e5; color: white; padding: 4px 8px; border-radius: 4px;');
+    console.log(`To: ${email}`);
+    console.log(`Subject: Reset Password Request`);
+    console.log(`Code: %c${code}`, 'font-weight: bold; font-size: 1.2em; color: #4f46e5;');
+    console.groupEnd();
+    
+    return true;
   }
 };
