@@ -91,6 +91,8 @@ export const Signup: React.FC = () => {
         // Clear sensitive fields
         setPassword('');
         setConfirmPassword('');
+        // Start cooldown immediately upon entering verification step
+        setResendTimer(60); 
       } else {
         navigateTo('UserArea');
       }
@@ -106,7 +108,7 @@ export const Signup: React.FC = () => {
     setError(null);
     try {
         await resendVerificationCode(email);
-        setResendTimer(30); // 30 seconds cooldown
+        setResendTimer(60); // 60 seconds cooldown
     } catch (err: any) {
         setError(err.message || 'Failed to resend code');
     }
