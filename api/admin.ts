@@ -1,42 +1,69 @@
 
-import { Database } from '../database/storage';
+import { ConfigModel, CarModel, UserModel } from '../database/models';
 import { SiteConfig } from '../contexts/SiteContext';
-import { Car, User } from '../types';
+import { SITE_CONFIG as DEFAULT_CONFIG } from '../data/siteConfig';
 
 export const adminController = {
   // Config Operations
-  getConfig: () => {
-    const config = Database.read<SiteConfig>('config');
-    return { status: 200, body: config };
+  getConfig: async () => {
+    try {
+      let config = await ConfigModel.findOne();
+      if (!config) {
+        // Seed default config if none exists
+        config = await ConfigModel.create(DEFAULT_CONFIG);
+      }
+      return { status: 200, body: config };
+    } catch (error) {
+      return { status: 500, body: { message: 'Failed to load config' } };
+    }
   },
 
-  updateConfig: (data: any) => {
-    const currentConfig = Database.read<SiteConfig>('config');
-    const newConfig = { ...currentConfig, ...data };
-    Database.write('config', newConfig);
-    return { status: 200, body: newConfig };
+  updateConfig: async (data: any) => {
+    try {
+      // Upsert: update if exists, insert if not
+      const updated = await ConfigModel.findOneAndUpdate(
+        {}, 
+        data, 
+        { new: true, upsert: true }
+      );
+      return { status: 200, body: updated };
+    } catch (error) {
+      return { status: 500, body: { message: 'Failed to update config' } };
+    }
   },
 
-  resetConfig: () => {
-    Database.reset('config');
-    return { status: 204, body: null };
+  resetConfig: async () => {
+    try {
+      await ConfigModel.deleteMany({});
+      const newConfig = await ConfigModel.create(DEFAULT_CONFIG);
+      return { status: 200, body: newConfig };
+    } catch (error) {
+      return { status: 500, body: { message: 'Reset failed' } };
+    }
   },
 
   // Admin Stats
-  getStats: () => {
-    const cars = Database.read<Car[]>('cars');
-    const users = Database.read<User[]>('users');
-    
-    const totalValue = cars.reduce((acc, car) => acc + (car.priceValue || 0), 0);
-    
-    return {
-      status: 200,
-      body: {
-        totalInventory: cars.length,
-        totalUsers: users.length,
-        portfolioValue: totalValue,
-        activeOrders: 3 // Mocked
-      }
-    };
+  getStats: async () => {
+    try {
+      const [carCount, userCount, cars] = await Promise.all([
+        CarModel.countDocuments(),
+        UserModel.countDocuments(),
+        CarModel.find().select('priceValue')
+      ]);
+      
+      const totalValue = cars.reduce((acc, car) => acc + (car.priceValue || 0), 0);
+      
+      return {
+        status: 200,
+        body: {
+          totalInventory: carCount,
+          totalUsers: userCount,
+          portfolioValue: totalValue,
+          activeOrders: 3 // Mocked for now
+        }
+      };
+    } catch (error) {
+      return { status: 500, body: { message: 'Stats error' } };
+    }
   }
 };
