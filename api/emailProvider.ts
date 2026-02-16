@@ -7,9 +7,9 @@ const EMAIL_CONFIG = {
   // Replace with your actual API endpoint (e.g., https://api.resend.com/emails or EmailJS)
   endpoint: 'https://api.emailjs.com/api/v1.0/email/send', 
   // In a real app, these would come from environment variables
-  serviceId: import.meta.env?.VITE_EMAIL_SERVICE_ID || '',
-  templateId: import.meta.env?.VITE_EMAIL_TEMPLATE_ID || '',
-  userId: import.meta.env?.VITE_EMAIL_USER_ID || '', // Public Key
+  serviceId: (import.meta as any).env?.VITE_EMAIL_SERVICE_ID || '',
+  templateId: (import.meta as any).env?.VITE_EMAIL_TEMPLATE_ID || '',
+  userId: (import.meta as any).env?.VITE_EMAIL_USER_ID || '', // Public Key
 };
 
 export const emailProvider = {
