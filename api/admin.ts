@@ -1,7 +1,7 @@
 
 import { ConfigModel, CarModel, UserModel } from '../database/models';
 import { SiteConfig } from '../contexts/SiteContext';
-gg import { SITE_CONFIG as DEFAULT_CONFIG } from '../data/siteConfig';
+import { SITE_CONFIG as DEFAULT_CONFIG } from '../data/siteConfig';
 
 export const adminController = {
   // Config Operations
