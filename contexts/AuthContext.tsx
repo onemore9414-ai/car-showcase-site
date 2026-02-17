@@ -28,13 +28,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Initialize session on mount
   useEffect(() => {
-    const initAuth = () => {
-      const session = authService.getSession();
-      if (session && session.user && session.token) {
-        setUser(session.user);
-        setToken(session.token);
+    const initAuth = async () => {
+      try {
+        const session = await authService.getSession();
+        if (session && session.user && session.token) {
+          setUser(session.user);
+          setToken(session.token);
+        }
+      } catch (e) {
+        console.error("Session init error", e);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
     initAuth();
   }, []);
@@ -91,7 +96,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const resendVerificationCode = async (email: string) => {
-    // Note: We don't set global loading here to avoid blocking UI during cooldown
     setError(null);
     try {
       await authService.resendVerificationCode(email);
@@ -143,6 +147,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsLoading(true);
     setError(null);
     try {
+      // Merge current user data with updates
       const updatedUser = await authService.updateProfile({ ...user, ...data });
       setUser(updatedUser);
     } catch (err: any) {

@@ -1,8 +1,13 @@
-import { VercelRequest, VercelResponse } from "@vercel/node";
+import type { VercelRequest, VercelResponse } from "@vercel/node";
 import nodemailer from "nodemailer";
 
+interface RequestBody {
+  email: string;
+  code: string;
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const { email, code } = req.body;
+  const { email, code } = req.body as RequestBody;
 
   const transporter = nodemailer.createTransport({
     service: "gmail",

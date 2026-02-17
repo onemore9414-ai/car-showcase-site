@@ -3,11 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { MapPin, Phone, Mail, Clock, Instagram, Twitter, Linkedin, ArrowRight, Check, AlertCircle, Loader2 } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { useSite } from '../contexts/SiteContext';
-import { useLocation } from 'react-router-dom';
+import { useNavigation } from '../contexts/NavigationContext';
 
 export const Contact: React.FC = () => {
   const { config } = useSite();
-  const location = useLocation();
+  const { navigationData } = useNavigation();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -23,15 +23,15 @@ export const Contact: React.FC = () => {
 
   // Pre-fill from navigation state
   useEffect(() => {
-    if (location.state) {
-      const { interest, message, carName } = location.state as any;
+    if (navigationData) {
+      const { interest, message, carName } = navigationData;
       setFormData(prev => ({
         ...prev,
         interest: interest || prev.interest,
         message: message || (carName ? `I am interested in the ${carName}.` : prev.message)
       }));
     }
-  }, [location.state]);
+  }, [navigationData]);
 
   const validate = () => {
     const newErrors: Record<string, string> = {};

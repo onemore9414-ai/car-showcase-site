@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 
+  Global Styles 
+  Note: Most styles are handled via Tailwind CDN in index.html.
+  This file serves as an entry point for custom CSS if needed.
+*/
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

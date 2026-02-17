@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { useParams } from 'react-router-dom';
 import { Shield, Zap, Wind, Gauge, Check, Star, RefreshCw, AlertCircle } from 'lucide-react';
 import { useCars } from '../contexts/CarContext';
 import { ScrollReveal } from '../components/ScrollReveal';
@@ -11,11 +10,11 @@ import { Button } from '../components/Button';
 import { useNavigation } from '../contexts/NavigationContext';
 
 export const ProductDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
   const { cars, isLoading, error, refreshCars } = useCars();
-  const { navigateTo } = useNavigation();
+  const { navigateTo, navigationData } = useNavigation();
   
-  // 1. Load correct car based on URL parameter ID
+  // 1. Load correct car based on Navigation Context Data
+  const id = navigationData?.id;
   const car = cars.find(c => c.id === id);
 
   const handleOrder = () => {
