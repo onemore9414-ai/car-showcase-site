@@ -13,8 +13,8 @@ export interface User {
 }
 
 export interface AuthResponse {
-  user?: User;
-  token?: string;
+  user: User | null;
+  token: string | null;
   requiresVerification?: boolean;
   message?: string;
 }
