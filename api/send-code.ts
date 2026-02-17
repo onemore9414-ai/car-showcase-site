@@ -1,6 +1,7 @@
+import { VercelRequest, VercelResponse } from "@vercel/node";
 import nodemailer from "nodemailer";
 
-export default async function handler(req, res) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { email, code } = req.body;
 
   const transporter = nodemailer.createTransport({
